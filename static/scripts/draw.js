@@ -9,8 +9,6 @@ var mobile;
 var xHold;
 var yHold;
 
-var lines = [];
-
 function init(){
 	console.log("init");
 	c = document.getElementById("canvas");
@@ -44,16 +42,12 @@ function drawLine(x1, y1, x2, y2){
 		x2: x2,
 		y2: y2
 	};
-	lines.push(line);
 	sendLine(line);
 	
 	ctx.beginPath();
 	ctx.moveTo(x1, y1);
 	ctx.lineTo(x2, y2);
 	ctx.stroke();
-	
-	xHold = x2;
-	yHold = y2;
 }
 
 function mouseUp(event){
@@ -65,6 +59,8 @@ function mouseMove(event){
 	var y = event.clientY;
 	if(move){
 		drawLine(xHold, yHold, x, y);
+		xHold = x;
+		yHold = y;
 	}
 }
 
@@ -88,6 +84,8 @@ function touchMove(event){
 	var y = touch.clientY;
 	if(move){
 		drawLine(xHold, yHold, x, y);
+		xHold = x;
+		yHold = y;
 	}
 }
 
@@ -96,7 +94,7 @@ function sendLine(line){
 		type: 'POST',
 		url: '/updateCanvas/'.concat(JSON.stringify(line)),
 		success: function(response){
-			console.log(response);
+			//Do nothing
 		},
 		error: function(error){
 			console.log(error);
@@ -105,3 +103,10 @@ function sendLine(line){
 }
 	
 init();
+var socket = io.connect('http://' + document.domain + ':' + location.port);
+socket.on('connect', function(){
+	console.log('connected');
+});
+socket.on('message', function(data){
+	drawLine(data.x1, data.y1, data.x2, data.y2);
+});
