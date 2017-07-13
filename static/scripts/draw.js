@@ -72,7 +72,7 @@ function touchDown(event){
 	event.preventDefault();
 	var touch = event.changedTouches[0];
 	xHold = touch.clientX;
-	yHold = touch.clientX;
+	yHold = touch.clientY;
 	move = true;
 }
 
