@@ -35,14 +35,16 @@ function mouseDown(event){
 	console.log("MOUSEDOWN");
 }
 
-function drawLine(x1, y1, x2, y2){
+function drawLine(x1, y1, x2, y2, broadcast){
 	var line = {
 		x1: x1,
 		y1: y1,
 		x2: x2,
 		y2: y2
 	};
-	sendLine(line);
+	if(broadcast){
+		sendLine(line);
+	}
 	
 	ctx.beginPath();
 	ctx.moveTo(x1, y1);
@@ -58,7 +60,7 @@ function mouseMove(event){
 	var x = event.clientX;
 	var y = event.clientY;
 	if(move){
-		drawLine(xHold, yHold, x, y);
+		drawLine(xHold, yHold, x, y, true);
 		xHold = x;
 		yHold = y;
 	}
@@ -83,7 +85,7 @@ function touchMove(event){
 	var x = touch.clientX;
 	var y = touch.clientY;
 	if(move){
-		drawLine(xHold, yHold, x, y);
+		drawLine(xHold, yHold, x, y, true);
 		xHold = x;
 		yHold = y;
 	}
@@ -108,5 +110,5 @@ socket.on('connect', function(){
 	console.log('connected');
 });
 socket.on('message', function(data){
-	drawLine(data.x1, data.y1, data.x2, data.y2);
+	drawLine(data.x1, data.y1, data.x2, data.y2, false);
 });
