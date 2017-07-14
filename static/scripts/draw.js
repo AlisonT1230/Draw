@@ -4,10 +4,14 @@ var ctx;
 var c;
 var move;
 
-var mobile;
-
 var xHold;
 var yHold;
+
+var colourBox;
+
+var redSlider;
+var greenSlider;
+var blueSlider;
 
 function init(){
 	console.log("init");
@@ -16,6 +20,7 @@ function init(){
 	ctx.lineWidth = 5;
 	move = false;
 	loadListeners();
+	loadColourBox();
 }
 
 function loadListeners(){
@@ -28,19 +33,34 @@ function loadListeners(){
 	c.addEventListener('touchmove', touchMove, false);
 }
 
+function loadColourBox(){
+	colourBox = document.getElementById("drawColour");
+	redSlider = document.getElementById("redSlider");
+	greenSlider = document.getElementById("greenSlider");
+	blueSlider = document.getElementById("blueSlider");
+	redSlider.addEventListener('input', setColour, false);
+	greenSlider.addEventListener('input', setColour, false);
+	blueSlider.addEventListener('input', setColour, false);
+	setColour();
+}
+
+function setColour(){
+	colourBox.style.backgroundColor="rgb(" + redSlider.value + "," + greenSlider.value + "," + blueSlider.value + ")";
+}
+
 function mouseDown(event){
 	xHold = event.clientX;
 	yHold = event.clientY;
 	move = true;
-	console.log("MOUSEDOWN");
 }
 
-function drawLine(x1, y1, x2, y2, broadcast){
+function drawLine(x1, y1, x2, y2, colour, broadcast){
 	var line = {
 		x1: x1,
 		y1: y1,
 		x2: x2,
-		y2: y2
+		y2: y2,
+		colour: colour
 	};
 	if(broadcast){
 		sendLine(line);
@@ -49,6 +69,7 @@ function drawLine(x1, y1, x2, y2, broadcast){
 	ctx.beginPath();
 	ctx.moveTo(x1, y1);
 	ctx.lineTo(x2, y2);
+	ctx.strokeStyle = colour;
 	ctx.stroke();
 }
 
@@ -60,7 +81,7 @@ function mouseMove(event){
 	var x = event.clientX;
 	var y = event.clientY;
 	if(move){
-		drawLine(xHold, yHold, x, y, true);
+		drawLine(xHold, yHold, x, y, colourBox.style.backgroundColor, true);
 		xHold = x;
 		yHold = y;
 	}
@@ -85,7 +106,7 @@ function touchMove(event){
 	var x = touch.clientX;
 	var y = touch.clientY;
 	if(move){
-		drawLine(xHold, yHold, x, y, true);
+		drawLine(xHold, yHold, x, y, colourBox.style.backgroundColor, true);
 		xHold = x;
 		yHold = y;
 	}
@@ -110,5 +131,5 @@ socket.on('connect', function(){
 	console.log('connected');
 });
 socket.on('message', function(data){
-	drawLine(data.x1, data.y1, data.x2, data.y2, false);
+	drawLine(data.x1, data.y1, data.x2, data.y2, data.colour, false);
 });
